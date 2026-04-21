@@ -14,14 +14,10 @@ from matplotlib.lines import Line2D
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-# =========================
 # GRAPH
-# =========================
 G = nx.Graph()
 
-# =========================
 # DATA
-# =========================
 mrt_data = [
     # NSL
     ["Woodlands", "Yishun", 7.3, 4.5, "#D42E12", "North-South Line"],
@@ -65,9 +61,7 @@ mrt_data = [
 for s, t, km, mi, c, l in mrt_data:
     G.add_edge(s, t, km=km, miles=mi, color=c, line=l)
 
-# =========================
 # FARE
-# =========================
 def calculate_fare(distance):
     fare_table = [
         (3.2, 1.19),
@@ -97,9 +91,7 @@ def calculate_fare(distance):
     return 2.14 + (extra * 0.04)
 
 
-# =========================
 # LAYOUT
-# =========================
 scale = 2.7
 
 pos = {
@@ -199,9 +191,7 @@ edge_label_pos = {
 }
 
 
-# =========================
 # HELPERS
-# =========================
 def get_interchange_nodes():
     interchange_nodes = []
     for node in G.nodes():
@@ -325,9 +315,7 @@ def find_route(start, end, selected_unit):
     }
 
 
-# =========================
 # TASK 2 
-# =========================
 def calculate_network_statistics():
     total_km = sum(d["km"] for _, _, d in G.edges(data=True))
     total_miles = sum(d["miles"] for _, _, d in G.edges(data=True))
@@ -345,9 +333,7 @@ def calculate_network_statistics():
     }
 
 
-# =========================
 # DRAW MAP
-# =========================
 def draw_manual_edge_labels(ax, selected_unit):
     for u, v, d in G.edges(data=True):
         x1, y1 = pos[u]
@@ -587,9 +573,7 @@ def create_map_figure(selected_unit="km", route=None):
     return fig
 
 
-# =========================
 # APP
-# =========================
 class MRTApp:
     def __init__(self, root):
         self.root = root
@@ -1103,9 +1087,7 @@ class MRTApp:
         self.show_full_map()
 
 
-# =========================
 # MAIN
-# =========================
 if __name__ == "__main__":
     root = tk.Tk()
     app = MRTApp(root)
