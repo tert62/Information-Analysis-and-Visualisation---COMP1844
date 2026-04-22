@@ -1,5 +1,3 @@
-import re
-import difflib
 import networkx as nx
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -60,6 +58,7 @@ mrt_data = [
 
 for s, t, km, mi, c, l in mrt_data:
     G.add_edge(s, t, km=km, miles=mi, color=c, line=l)
+
 
 # FARE
 def calculate_fare(distance):
@@ -218,50 +217,6 @@ def get_midpoint(p1, p2):
     return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
 
 
-def normalize_station_name(name):
-    name = name.strip().lower()
-    name = re.sub(r"[^a-z0-9\s]", "", name)
-    name = re.sub(r"\s+", " ", name)
-    return name
-
-
-def build_station_lookup():
-    lookup = {}
-    for station in G.nodes():
-        lookup[normalize_station_name(station)] = station
-    return lookup
-
-
-STATION_LOOKUP = build_station_lookup()
-
-
-def resolve_station_input(user_input):
-    normalized = normalize_station_name(user_input)
-
-    if normalized in STATION_LOOKUP:
-        return STATION_LOOKUP[normalized], []
-
-    partial_matches = []
-    for key, value in STATION_LOOKUP.items():
-        if normalized and normalized in key:
-            partial_matches.append(value)
-
-    if partial_matches:
-        return partial_matches[0], []
-
-    suggestions = difflib.get_close_matches(
-        normalized,
-        list(STATION_LOOKUP.keys()),
-        n=3,
-        cutoff=0.5
-    )
-
-    if suggestions:
-        return None, [STATION_LOOKUP[s] for s in suggestions]
-
-    return None, []
-
-
 def get_line(u, v):
     return G[u][v]["line"]
 
@@ -315,7 +270,7 @@ def find_route(start, end, selected_unit):
     }
 
 
-# TASK 2 
+# TASK 2
 def calculate_network_statistics():
     total_km = sum(d["km"] for _, _, d in G.edges(data=True))
     total_miles = sum(d["miles"] for _, _, d in G.edges(data=True))
@@ -993,14 +948,8 @@ class MRTApp:
         close_btn.pack(anchor="e", pady=(10, 0))
 
     def draw_route_and_maybe_popup(self, show_popup=True):
-        start_input = self.start_station.get().strip()
-        end_input = self.end_station.get().strip()
-
-        if not start_input or not end_input:
-            return False
-
-        start_station, _ = resolve_station_input(start_input)
-        end_station, _ = resolve_station_input(end_input)
+        start_station = self.start_station.get().strip()
+        end_station = self.end_station.get().strip()
 
         if not start_station or not end_station or start_station == end_station:
             return False
@@ -1027,28 +976,11 @@ class MRTApp:
                 self.show_full_map()
 
     def find_route_gui(self):
-        start_input = self.start_station.get().strip()
-        end_input = self.end_station.get().strip()
+        start_station = self.start_station.get().strip()
+        end_station = self.end_station.get().strip()
 
-        if not start_input or not end_input:
+        if not start_station or not end_station:
             messagebox.showwarning("Missing input", "Please select both Start and End stations.")
-            return
-
-        start_station, start_suggestions = resolve_station_input(start_input)
-        end_station, end_suggestions = resolve_station_input(end_input)
-
-        if not start_station:
-            msg = "Invalid Start station."
-            if start_suggestions:
-                msg += "\nDid you mean: " + ", ".join(start_suggestions)
-            messagebox.showerror("Error", msg)
-            return
-
-        if not end_station:
-            msg = "Invalid End station."
-            if end_suggestions:
-                msg += "\nDid you mean: " + ", ".join(end_suggestions)
-            messagebox.showerror("Error", msg)
             return
 
         if start_station == end_station:
@@ -1068,10 +1000,10 @@ class MRTApp:
         self.show_figure(fig)
 
     def refresh_map_only(self):
-        start_input = self.start_station.get().strip()
-        end_input = self.end_station.get().strip()
+        start_station = self.start_station.get().strip()
+        end_station = self.end_station.get().strip()
 
-        if start_input and end_input and start_input != end_input:
+        if start_station and end_station and start_station != end_station:
             try:
                 self.draw_route_and_maybe_popup(show_popup=False)
                 return
